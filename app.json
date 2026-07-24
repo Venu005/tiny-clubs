@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "scheme": "myapp",
+    "plugins": [
+      "expo-router"
+    ],
+    "name": "tiny-clubs",
+    "slug": "tiny-clubs"
+  }
+}
