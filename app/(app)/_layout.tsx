@@ -23,7 +23,7 @@ export default function AppLayout() {
   }
 
   if (!isSignedIn) {
-    return <Redirect href={getSignedOutDestination()} />;
+    return <Redirect href={getSignedOutDestination("session-expired")} />;
   }
 
   if (profile === undefined) {

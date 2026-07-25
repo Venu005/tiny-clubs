@@ -2,6 +2,7 @@ const mockUseSignIn = jest.fn();
 const mockUseSignInWithGoogle = jest.fn();
 const mockUseSignInWithApple = jest.fn();
 const mockReplace = jest.fn();
+const mockUseLocalSearchParams = jest.fn();
 
 jest.mock("@clerk/expo", () => ({
   useSignIn: () => mockUseSignIn(),
@@ -19,6 +20,7 @@ jest.mock("expo-router", () => ({
   router: {
     replace: (...args: unknown[]) => mockReplace(...args),
   },
+  useLocalSearchParams: () => mockUseLocalSearchParams(),
 }));
 
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
@@ -57,6 +59,7 @@ describe("sign-in screen", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     setPlatform("ios");
+    mockUseLocalSearchParams.mockReturnValue({});
     mockUseSignIn.mockReturnValue({
       fetchStatus: "idle",
       signIn: {
@@ -89,6 +92,15 @@ describe("sign-in screen", () => {
     expect(await findByText("Request code")).toBeTruthy();
     expect(await findByText("Continue with Google")).toBeTruthy();
     expect(await findByText("Continue with Apple")).toBeTruthy();
+  });
+
+  it("shows a session expired message from the sign-in route reason", async () => {
+    mockUseLocalSearchParams.mockReturnValue({ reason: "session-expired" });
+    const { findByText } = await renderScreen();
+
+    expect(
+      await findByText("Session expired, please sign in again")
+    ).toBeTruthy();
   });
 
   it("hides Apple sign-in on Android without hiding Google", async () => {

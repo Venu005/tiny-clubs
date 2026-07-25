@@ -1,6 +1,9 @@
+import { useAuth } from "@clerk/expo";
 import { Text, View, ScrollView } from "react-native";
 import { api } from "@/convex/_generated/api";
 import { useQuery, useMutation } from "convex/react";
+import { router } from "expo-router";
+import { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
 import { resolveBackendConfig } from "../backendConfig";
 import { getHealthDisplayState } from "../healthStatus";
@@ -8,6 +11,7 @@ import { ThreeByFourCard } from "@/components/ThreeByFourCard";
 import { useTheme } from "@/theme";
 import { AccessibleButton } from "@/components/AccessibleButton";
 import { OnboardingAccessForm } from "@/components/OnboardingAccessForm";
+import { TinyButton } from "@/components/ui";
 
 type Product = {
   _id: Id<"products">;
@@ -103,6 +107,9 @@ function ProductCard({
 
 export default function Index() {
   const theme = useTheme();
+  const { signOut } = useAuth();
+  const [isConfirmingSignOut, setIsConfirmingSignOut] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const backendConfig = resolveBackendConfig({
     APP_ENVIRONMENT_NAME: process.env.APP_ENVIRONMENT_NAME,
     EXPO_PUBLIC_APP_ENVIRONMENT: process.env.EXPO_PUBLIC_APP_ENVIRONMENT,
@@ -120,6 +127,21 @@ export default function Index() {
     health,
     backendConfig.convexUrl !== null
   );
+
+  async function confirmSignOut() {
+    if (isSigningOut) {
+      return;
+    }
+
+    setIsSigningOut(true);
+
+    try {
+      await signOut();
+      router.replace("/sign-in");
+    } finally {
+      setIsSigningOut(false);
+    }
+  }
 
   return (
     <ScrollView
@@ -173,6 +195,51 @@ export default function Index() {
           >
             {healthState.label}
           </Text>
+        )}
+      </View>
+
+      <View
+        style={{
+          backgroundColor: theme.color("surface.white"),
+          borderColor: theme.color("neutral.200"),
+          borderRadius: theme.radius("md"),
+          borderWidth: 1,
+          gap: theme.spacing("sm"),
+          marginBottom: theme.spacing("md"),
+          padding: theme.spacing("md"),
+        }}
+      >
+        {isConfirmingSignOut ? (
+          <>
+            <Text
+              allowFontScaling
+              style={{
+                ...theme.tokens.typography.body,
+                color: theme.color("neutral.950"),
+                fontWeight: "700",
+              }}
+            >
+              Sign out of this device?
+            </Text>
+            <TinyButton
+              label="Confirm sign-out"
+              loading={isSigningOut}
+              loadingLabel="Signing out"
+              onPress={confirmSignOut}
+              variant="danger"
+            />
+            <TinyButton
+              label="Keep me signed in"
+              onPress={() => setIsConfirmingSignOut(false)}
+              variant="secondary"
+            />
+          </>
+        ) : (
+          <TinyButton
+            label="Sign out"
+            onPress={() => setIsConfirmingSignOut(true)}
+            variant="secondary"
+          />
         )}
       </View>
 

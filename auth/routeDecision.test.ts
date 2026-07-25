@@ -1,6 +1,7 @@
 import {
   getAuthenticatedDestination,
   getSignedOutDestination,
+  getSignedOutMessage,
   shouldShowAppleSignIn,
 } from "./routeDecision";
 
@@ -12,11 +13,25 @@ describe("auth route decisions", () => {
   });
 
   it("routes complete profiles to the main app", () => {
-    expect(getAuthenticatedDestination({ isComplete: true })).toBe("/");
+    expect(
+      getAuthenticatedDestination({
+        isComplete: true,
+        username: "tinyfriend",
+      })
+    ).toBe("/");
   });
 
   it("keeps signed-out users on sign-in", () => {
     expect(getSignedOutDestination()).toBe("/sign-in");
+  });
+
+  it("can route expired sessions to sign-in with a recoverable message", () => {
+    expect(getSignedOutDestination("session-expired")).toBe(
+      "/sign-in?reason=session-expired"
+    );
+    expect(getSignedOutMessage("session-expired")).toBe(
+      "Session expired, please sign in again"
+    );
   });
 
   it("shows Apple sign-in on iOS only", () => {
@@ -25,4 +40,3 @@ describe("auth route decisions", () => {
     expect(shouldShowAppleSignIn("web")).toBe(false);
   });
 });
-

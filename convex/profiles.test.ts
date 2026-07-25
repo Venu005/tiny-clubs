@@ -47,10 +47,52 @@ test("completeSetup marks the authenticated profile complete", async () => {
   await t.mutation(api.profiles.ensureCurrent, {});
   const result = await t.mutation(api.profiles.completeSetup, {
     displayName: "Captain Tiny",
+    username: "captain_tiny",
   });
   const profile = await t.query(api.profiles.current, {});
 
   expect(result).toEqual({ isComplete: true });
   expect(profile?.displayName).toBe("Captain Tiny");
+  expect(profile?.username).toBe("captain_tiny");
+  expect(profile?.usernameNormalized).toBe("captain_tiny");
   expect(profile?.isComplete).toBe(true);
+});
+
+test("completeSetup rejects invalid usernames", async () => {
+  const t = convexTest(schema, modules).withIdentity(clerkIdentity);
+
+  await t.mutation(api.profiles.ensureCurrent, {});
+
+  await expect(
+    t.mutation(api.profiles.completeSetup, {
+      displayName: "Captain Tiny",
+      username: "tiny captain!",
+    })
+  ).rejects.toThrow(
+    "Username can use lowercase letters, numbers, underscores, and periods only."
+  );
+});
+
+test("completeSetup rejects usernames already used by another profile", async () => {
+  const t = convexTest(schema, modules).withIdentity(clerkIdentity);
+
+  await t.run(async (ctx) => {
+    await ctx.db.insert("profiles", {
+      clerkSubject: "user_existing",
+      displayName: "Existing Friend",
+      email: "existing@tinyclubs.test",
+      isComplete: true,
+      tokenIdentifier: "https://tiny-clubs.clerk.accounts.dev|user_existing",
+      username: "captain_tiny",
+      usernameNormalized: "captain_tiny",
+      onboardingCompletedAt: 1,
+    });
+  });
+
+  await expect(
+    t.mutation(api.profiles.completeSetup, {
+      displayName: "Captain Tiny",
+      username: "Captain_Tiny",
+    })
+  ).rejects.toThrow("Username is already taken");
 });

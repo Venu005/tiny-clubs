@@ -49,7 +49,7 @@ describe("profile setup screen", () => {
     mockUseMutation.mockReturnValue(completeSetup);
     const { findByText } = await renderScreen();
 
-    fireEvent.press(await findByText("Save profile"));
+    fireEvent.press(await findByText("Continue"));
 
     expect(await findByText("Display name is required")).toBeTruthy();
     expect(completeSetup).not.toHaveBeenCalled();
@@ -64,13 +64,69 @@ describe("profile setup screen", () => {
     const { findByLabelText, findByText } = await renderScreen();
 
     fireEvent.changeText(await findByLabelText("Display name"), "Tiny Captain");
-    fireEvent.press(await findByText("Save profile"));
+    fireEvent.press(await findByText("Continue"));
+    fireEvent.changeText(await findByLabelText("Username"), "tinycaptain");
+    fireEvent.press(await findByText("Finish setup"));
 
     expect(await findByText("Display name is already taken")).toBeTruthy();
     fireEvent.press(await findByText("Retry"));
 
     await waitFor(() => {
       expect(completeSetup).toHaveBeenCalledTimes(2);
+      expect(mockReplace).toHaveBeenCalledWith("/");
+    });
+  });
+
+  it("stays on username step for invalid username format", async () => {
+    const completeSetup = jest.fn().mockResolvedValue({ isComplete: true });
+    mockUseMutation.mockReturnValue(completeSetup);
+    const { findByLabelText, findByText } = await renderScreen();
+
+    fireEvent.changeText(await findByLabelText("Display name"), "Tiny Captain");
+    fireEvent.press(await findByText("Continue"));
+    fireEvent.changeText(await findByLabelText("Username"), "tiny captain!");
+    fireEvent.press(await findByText("Finish setup"));
+
+    expect(
+      await findByText(
+        "Username can use lowercase letters, numbers, underscores, and periods only."
+      )
+    ).toBeTruthy();
+    expect(await findByLabelText("Username")).toBeTruthy();
+    expect(completeSetup).not.toHaveBeenCalled();
+  });
+
+  it("stays on username step when the username is already taken", async () => {
+    const completeSetup = jest
+      .fn()
+      .mockRejectedValueOnce(new Error("Username is already taken"));
+    mockUseMutation.mockReturnValue(completeSetup);
+    const { findByLabelText, findByText } = await renderScreen();
+
+    fireEvent.changeText(await findByLabelText("Display name"), "Tiny Captain");
+    fireEvent.press(await findByText("Continue"));
+    fireEvent.changeText(await findByLabelText("Username"), "tinycaptain");
+    fireEvent.press(await findByText("Finish setup"));
+
+    expect(await findByText("Username is already taken")).toBeTruthy();
+    expect(await findByLabelText("Username")).toBeTruthy();
+  });
+
+  it("submits display name and username before routing into the app", async () => {
+    const completeSetup = jest.fn().mockResolvedValue({ isComplete: true });
+    mockUseMutation.mockReturnValue(completeSetup);
+    const { findByLabelText, findByText } = await renderScreen();
+
+    fireEvent.changeText(await findByLabelText("Display name"), "Tiny Captain");
+    fireEvent.press(await findByText("Continue"));
+    fireEvent.changeText(await findByLabelText("Username"), "Tiny.Captain");
+    fireEvent.press(await findByText("Finish setup"));
+
+    await waitFor(() => {
+      expect(completeSetup).toHaveBeenCalledWith({
+        displayName: "Tiny Captain",
+        username: "Tiny.Captain",
+      });
       expect(mockReplace).toHaveBeenCalledWith("/");
     });
   });
