@@ -7,7 +7,13 @@
       "@/*": [
         "./*"
       ]
-    }
+    },
+    "moduleResolution": "bundler",
+    "module": "preserve",
+    "moduleDetection": "force",
+    "customConditions": [
+      "react-native"
+    ]
   },
   "include": [
     "**/*.ts",
