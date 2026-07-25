@@ -22,21 +22,17 @@ function readRepoFile(filePath) {
 }
 
 function getCiStatusCheckName(workflowText) {
-  const workflowNameMatch = workflowText.match(/^name:\s*(.+)\s*$/m);
   const jobKeyMatch = workflowText.match(/^jobs:\r?\n\s+(\S+):/m);
 
-  if (!workflowNameMatch || !jobKeyMatch) {
-    throw new Error("Could not parse CI workflow name and job id");
+  if (!jobKeyMatch) {
+    throw new Error("Could not parse CI workflow job id");
   }
 
   const jobSectionMatch = workflowText.match(
     new RegExp(`^  ${jobKeyMatch[1]}:\\n    name:\\s*(.+)\\s*$`, "m")
   );
-  const jobName = jobSectionMatch
-    ? jobSectionMatch[1].trim()
-    : jobKeyMatch[1];
 
-  return `${workflowNameMatch[1].trim()} / ${jobName}`;
+  return jobSectionMatch ? jobSectionMatch[1].trim() : jobKeyMatch[1];
 }
 
 function loadMainRuleset() {
