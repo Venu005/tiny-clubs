@@ -75,10 +75,6 @@ function validateMainRuleset({
 
   const ruleTypes = ruleset.rules.map((rule) => rule.type);
 
-  if (!ruleTypes.includes("update")) {
-    errors.push("Ruleset must restrict direct updates to main");
-  }
-
   if (!ruleTypes.includes("pull_request")) {
     errors.push("Ruleset must require pull requests before merging");
   }

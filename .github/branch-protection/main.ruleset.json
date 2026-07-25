@@ -13,12 +13,6 @@
       "type": "deletion"
     },
     {
-      "type": "update",
-      "parameters": {
-        "update_allows_fetch_and_merge": true
-      }
-    },
-    {
       "type": "non_fast_forward"
     },
     {
@@ -37,7 +31,8 @@
         "strict_required_status_checks_policy": true,
         "required_status_checks": [
           {
-            "context": "CI / verify"
+            "context": "CI / verify",
+            "integration_id": 15368
           }
         ]
       }

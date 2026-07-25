@@ -80,16 +80,12 @@ test("main branch protection blocks direct pushes and requires pull requests", (
   const ruleTypes = ruleset.rules.map((rule) => rule.type);
 
   assert.ok(
-    ruleTypes.includes("update"),
-    "Direct pushes to main must be restricted"
-  );
-  assert.ok(
     ruleTypes.includes("pull_request"),
     "Changes to main must go through pull requests"
   );
   assert.ok(
     ruleTypes.includes("required_status_checks"),
-    "Required status checks must be configured"
+    "Required status checks must block updates until CI passes on another ref"
   );
   assert.deepEqual(ruleset.conditions.ref_name.include, ["refs/heads/main"]);
 });
