@@ -4,6 +4,7 @@ import { Component, ReactNode } from "react";
 import { Text, View } from "react-native";
 import { resolveBackendConfig } from "./backendConfig";
 import { CONFIGURATION_ERROR_MESSAGE } from "./healthStatus";
+import { ThemeProvider, tokens } from "@/theme";
 
 const backendConfig = resolveBackendConfig({
   APP_ENVIRONMENT_NAME: process.env.APP_ENVIRONMENT_NAME,
@@ -23,20 +24,20 @@ function BackendConfigurationError() {
         flex: 1,
         justifyContent: "center",
         padding: 24,
-        backgroundColor: "#f5f5f5",
+        backgroundColor: tokens.color.surface.canvas,
       }}
     >
       <Text
         style={{
           fontSize: 20,
           fontWeight: "700",
-          color: "#333",
+          color: tokens.color.neutral[950],
           marginBottom: 8,
         }}
       >
         Backend unavailable
       </Text>
-      <Text style={{ fontSize: 16, color: "#666" }}>
+      <Text style={{ fontSize: 16, color: tokens.color.neutral[600] }}>
         {CONFIGURATION_ERROR_MESSAGE}
       </Text>
     </View>
@@ -71,14 +72,20 @@ const convex =
 
 export default function RootLayout() {
   if (convex === null) {
-    return <BackendConfigurationError />;
+    return (
+      <ThemeProvider>
+        <BackendConfigurationError />
+      </ThemeProvider>
+    );
   }
 
   return (
-    <BackendErrorBoundary>
-      <ConvexProvider client={convex}>
-        <Stack screenOptions={{ headerShown: false }} />
-      </ConvexProvider>
-    </BackendErrorBoundary>
+    <ThemeProvider>
+      <BackendErrorBoundary>
+        <ConvexProvider client={convex}>
+          <Stack screenOptions={{ headerShown: false }} />
+        </ConvexProvider>
+      </BackendErrorBoundary>
+    </ThemeProvider>
   );
 }
