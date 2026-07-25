@@ -5,6 +5,18 @@
       "expo-router"
     ],
     "name": "tiny-clubs",
-    "slug": "tiny-clubs"
+    "slug": "tiny-clubs",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "6de9279f-486f-46d1-a4b5-af028ab7f43d"
+      }
+    },
+    "ios": {
+      "bundleIdentifier": "com.venusai.tinyclubs",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    }
   }
 }
