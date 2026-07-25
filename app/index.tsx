@@ -4,6 +4,8 @@ import { useQuery, useMutation } from "convex/react";
 import { Id } from "@/convex/_generated/dataModel";
 import { resolveBackendConfig } from "./backendConfig";
 import { getHealthDisplayState } from "./healthStatus";
+import { ThreeByFourCard } from "@/components/ThreeByFourCard";
+import { useTheme } from "@/theme";
 
 type Product = {
   _id: Id<"products">;
@@ -21,18 +23,18 @@ function ProductCard({
   product: Product;
   onPurchase: () => void;
 }) {
+  const theme = useTheme();
+
   return (
     <View
       style={{
-        backgroundColor: "#fff",
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 12,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        backgroundColor: theme.color("surface.white"),
+        borderColor: theme.color("neutral.200"),
+        borderWidth: 1,
+        borderRadius: theme.radius("md"),
+        padding: theme.spacing("md"),
+        marginBottom: theme.spacing("md"),
+        ...theme.shadow("card"),
       }}
     >
       <View
@@ -40,10 +42,21 @@ function ProductCard({
       >
         <Text style={{ fontSize: 40, marginRight: 12 }}>{product.emoji}</Text>
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 18, fontWeight: "600", color: "#333" }}>
+          <Text
+            style={{
+              ...theme.tokens.typography.h3,
+              color: theme.color("neutral.950"),
+            }}
+          >
             {product.product}
           </Text>
-          <Text style={{ fontSize: 14, color: "#888", marginTop: 2 }}>
+          <Text
+            style={{
+              ...theme.tokens.typography.bodySmall,
+              color: theme.color("neutral.600"),
+              marginTop: 2,
+            }}
+          >
             {product.category}
           </Text>
         </View>
@@ -58,10 +71,20 @@ function ProductCard({
         }}
       >
         <View>
-          <Text style={{ fontSize: 20, fontWeight: "700", color: "#2a9d8f" }}>
+          <Text
+            style={{
+              ...theme.tokens.typography.h3,
+              color: theme.color("semantic.success"),
+            }}
+          >
             ${product.price.toFixed(2)}
           </Text>
-          <Text style={{ fontSize: 14, color: "#666" }}>
+          <Text
+            style={{
+              ...theme.tokens.typography.bodySmall,
+              color: theme.color("neutral.600"),
+            }}
+          >
             {product.quantity} in stock
           </Text>
         </View>
@@ -70,10 +93,13 @@ function ProductCard({
           onPress={onPurchase}
           disabled={product.quantity === 0}
           style={{
-            backgroundColor: product.quantity > 0 ? "#2a9d8f" : "#ccc",
+            backgroundColor:
+              product.quantity > 0
+                ? theme.color("brand.coral")
+                : theme.color("neutral.400"),
             paddingHorizontal: 20,
             paddingVertical: 10,
-            borderRadius: 8,
+            borderRadius: theme.radius("pill"),
           }}
         >
           <Text style={{ color: "#fff", fontWeight: "600" }}>
@@ -86,6 +112,7 @@ function ProductCard({
 }
 
 export default function Index() {
+  const theme = useTheme();
   const backendConfig = resolveBackendConfig({
     APP_ENVIRONMENT_NAME: process.env.APP_ENVIRONMENT_NAME,
     EXPO_PUBLIC_APP_ENVIRONMENT: process.env.EXPO_PUBLIC_APP_ENVIRONMENT,
@@ -106,34 +133,87 @@ export default function Index() {
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: "#f5f5f5" }}
-      contentContainerStyle={{ padding: 16, paddingTop: 60 }}
+      style={{ flex: 1, backgroundColor: theme.color("surface.canvas") }}
+      contentContainerStyle={{ padding: theme.spacing("md"), paddingTop: 60 }}
     >
       <View
         style={{
-          backgroundColor: healthState.kind === "error" ? "#fff4f2" : "#fff",
-          borderColor: healthState.kind === "error" ? "#d64f3f" : "#2a9d8f",
+          backgroundColor:
+            healthState.kind === "error"
+              ? theme.color("surface.tint")
+              : theme.color("surface.white"),
+          borderColor:
+            healthState.kind === "error"
+              ? theme.color("semantic.error")
+              : theme.color("brand.mint"),
           borderWidth: 1,
-          borderRadius: 8,
-          padding: 12,
-          marginBottom: 16,
+          borderRadius: theme.radius("md"),
+          padding: theme.spacing("md"),
+          marginBottom: theme.spacing("md"),
         }}
       >
         {healthState.kind === "error" ? (
           <>
-            <Text style={{ fontSize: 16, fontWeight: "700", color: "#333" }}>
+            <Text
+              style={{
+                ...theme.tokens.typography.body,
+                fontWeight: "700",
+                color: theme.color("neutral.950"),
+              }}
+            >
               {healthState.title}
             </Text>
-            <Text style={{ fontSize: 14, color: "#666", marginTop: 4 }}>
+            <Text
+              style={{
+                ...theme.tokens.typography.bodySmall,
+                color: theme.color("neutral.600"),
+                marginTop: theme.spacing("xs"),
+              }}
+            >
               {healthState.message}
             </Text>
           </>
         ) : (
-          <Text style={{ fontSize: 14, fontWeight: "600", color: "#333" }}>
+          <Text
+            style={{
+              ...theme.tokens.typography.bodySmall,
+              fontWeight: "600",
+              color: theme.color("neutral.950"),
+            }}
+          >
             {healthState.label}
           </Text>
         )}
       </View>
+
+      <ThreeByFourCard style={{ marginBottom: theme.spacing("md") }}>
+        <Text
+          style={{
+            ...theme.tokens.typography.caption,
+            color: theme.color("brand.coral"),
+            marginBottom: theme.spacing("sm"),
+          }}
+        >
+          Weekend Madness
+        </Text>
+        <Text
+          style={{
+            ...theme.tokens.typography.h2,
+            color: theme.color("neutral.950"),
+          }}
+        >
+          Recreate a movie poster
+        </Text>
+        <Text
+          style={{
+            ...theme.tokens.typography.body,
+            color: theme.color("neutral.600"),
+            marginTop: theme.spacing("sm"),
+          }}
+        >
+          A 3:4 challenge card using shared Tiny Clubs tokens.
+        </Text>
+      </ThreeByFourCard>
 
       {products?.map((product) => (
         <ProductCard
