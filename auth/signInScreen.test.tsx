@@ -113,6 +113,28 @@ describe("sign-in screen", () => {
     expect(await findByText("Verify code")).toBeTruthy();
   });
 
+  it("shows inline validation and does not request a code for an empty email", async () => {
+    const signIn = mockUseSignIn().signIn;
+    const { findByText } = await renderScreen();
+
+    fireEvent.press(await findByText("Request code"));
+
+    expect(await findByText("Email is required")).toBeTruthy();
+    expect(signIn.create).not.toHaveBeenCalled();
+  });
+
+  it("shows inline validation and does not verify an empty code", async () => {
+    const signIn = mockUseSignIn().signIn;
+    const { findByLabelText, findByText } = await renderScreen();
+
+    fireEvent.changeText(await findByLabelText("Email address"), "a@b.co");
+    fireEvent.press(await findByText("Request code"));
+    fireEvent.press(await findByText("Verify code"));
+
+    expect(await findByText("Code is required")).toBeTruthy();
+    expect(signIn.emailCode.verifyCode).not.toHaveBeenCalled();
+  });
+
   it("shows the required invalid code error when OTP verification fails", async () => {
     const signIn = mockUseSignIn().signIn;
     signIn.emailCode.verifyCode.mockRejectedValueOnce({
@@ -139,6 +161,24 @@ describe("sign-in screen", () => {
     fireEvent.press(await findByText("Continue with Google"));
 
     expect(await findByText("Sign-in cancelled")).toBeTruthy();
+  });
+
+  it("shows a retry action when provider callback configuration fails", async () => {
+    mockUseSignInWithGoogle.mockReturnValue({
+      startGoogleAuthenticationFlow: jest
+        .fn()
+        .mockRejectedValue({ message: "OAuth callback URL mismatch" }),
+    });
+    const { findByText } = await renderScreen();
+
+    fireEvent.press(await findByText("Continue with Google"));
+
+    expect(
+      await findByText(
+        "Sign-in could not be completed. Check your sign-in configuration and try again."
+      )
+    ).toBeTruthy();
+    expect(await findByText("Retry")).toBeTruthy();
   });
 
   it("shows offline retry state and prevents duplicate submissions while loading", async () => {
