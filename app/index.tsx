@@ -1,4 +1,4 @@
-import { Text, View, Pressable, ScrollView } from "react-native";
+import { Text, View, ScrollView } from "react-native";
 import { api } from "@/convex/_generated/api";
 import { useQuery, useMutation } from "convex/react";
 import { Id } from "@/convex/_generated/dataModel";
@@ -6,6 +6,8 @@ import { resolveBackendConfig } from "./backendConfig";
 import { getHealthDisplayState } from "./healthStatus";
 import { ThreeByFourCard } from "@/components/ThreeByFourCard";
 import { useTheme } from "@/theme";
+import { AccessibleButton } from "@/components/AccessibleButton";
+import { OnboardingAccessForm } from "@/components/OnboardingAccessForm";
 
 type Product = {
   _id: Id<"products">;
@@ -89,23 +91,11 @@ function ProductCard({
           </Text>
         </View>
 
-        <Pressable
+        <AccessibleButton
+          label={product.quantity > 0 ? "Purchase" : "Out of Stock"}
           onPress={onPurchase}
           disabled={product.quantity === 0}
-          style={{
-            backgroundColor:
-              product.quantity > 0
-                ? theme.color("brand.coral")
-                : theme.color("neutral.400"),
-            paddingHorizontal: 20,
-            paddingVertical: 10,
-            borderRadius: theme.radius("pill"),
-          }}
-        >
-          <Text style={{ color: "#fff", fontWeight: "600" }}>
-            {product.quantity > 0 ? "Purchase" : "Out of Stock"}
-          </Text>
-        </Pressable>
+        />
       </View>
     </View>
   );
@@ -214,6 +204,8 @@ export default function Index() {
           A 3:4 challenge card using shared Tiny Clubs tokens.
         </Text>
       </ThreeByFourCard>
+
+      <OnboardingAccessForm />
 
       {products?.map((product) => (
         <ProductCard
