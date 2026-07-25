@@ -2,6 +2,7 @@
   "name": "tiny-clubs",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "packageManager": "pnpm@11.17.0",
   "scripts": {
     "start": "expo start",
     "start:development": "EXPO_PUBLIC_APP_ENVIRONMENT=development expo start",
