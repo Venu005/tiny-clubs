@@ -10,6 +10,7 @@
 
 import type * as health from "../health.js";
 import type * as products from "../products.js";
+import type * as profiles from "../profiles.js";
 
 import type {
   ApiFromModules,
@@ -20,6 +21,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   health: typeof health;
   products: typeof products;
+  profiles: typeof profiles;
 }>;
 
 /**

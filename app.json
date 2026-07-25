@@ -3,12 +3,20 @@
     "scheme": "myapp",
     "icon": "./assets/icon.png",
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-secure-store",
+      "expo-apple-authentication",
+      "@clerk/expo",
+      "@clerk/expo-google-signin"
     ],
     "name": "tiny-clubs",
     "slug": "tiny-clubs",
     "extra": {
       "router": {},
+      "EXPO_PUBLIC_CLERK_GOOGLE_WEB_CLIENT_ID": "",
+      "EXPO_PUBLIC_CLERK_GOOGLE_IOS_CLIENT_ID": "",
+      "EXPO_PUBLIC_CLERK_GOOGLE_ANDROID_CLIENT_ID": "",
+      "EXPO_PUBLIC_CLERK_GOOGLE_IOS_URL_SCHEME": "",
       "eas": {
         "projectId": "6de9279f-486f-46d1-a4b5-af028ab7f43d"
       }
