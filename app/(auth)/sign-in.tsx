@@ -2,43 +2,61 @@ import { useSignIn } from "@clerk/expo";
 import { useSignInWithApple } from "@clerk/expo/apple";
 import { useSignInWithGoogle } from "@clerk/expo/google";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Platform, ScrollView, Text, TextInput, View } from "react-native";
 import {
+  CALLBACK_AUTH_MESSAGE,
   getAuthErrorMessage,
   OFFLINE_AUTH_MESSAGE,
 } from "@/auth/errorMessages";
 import { shouldShowAppleSignIn } from "@/auth/routeDecision";
+import { AccessibleTextField } from "@/components/AccessibleTextField";
 import { TinyButton, TinyToast } from "@/components/ui";
 import { useTheme } from "@/theme";
 
 type Step = "email" | "otp";
+type RetryAction = "requestCode" | "verifyCode" | "google" | "apple" | null;
 
 export default function SignInScreen() {
   const theme = useTheme();
   const { signIn } = useSignIn();
   const { startGoogleAuthenticationFlow } = useSignInWithGoogle();
   const { startAppleAuthenticationFlow } = useSignInWithApple();
+  const emailInputRef = useRef<TextInput>(null);
+  const codeInputRef = useRef<TextInput>(null);
   const [emailAddress, setEmailAddress] = useState("");
   const [code, setCode] = useState("");
   const [step, setStep] = useState<Step>("email");
   const [error, setError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | undefined>();
+  const [codeError, setCodeError] = useState<string | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [retryAction, setRetryAction] = useState<RetryAction>(null);
 
   async function requestCode() {
     if (isSubmitting) {
       return;
     }
 
+    if (emailAddress.trim().length === 0) {
+      setEmailError("Email is required");
+      emailInputRef.current?.focus();
+      return;
+    }
+
     setError(null);
+    setRetryAction(null);
+    setEmailError(undefined);
     setIsSubmitting(true);
 
     try {
-      await signIn.create({ identifier: emailAddress });
+      await signIn.create({ identifier: emailAddress.trim() });
       await signIn.emailCode.sendCode();
       setStep("otp");
     } catch (err) {
-      setError(getAuthErrorMessage(err));
+      const message = getAuthErrorMessage(err);
+      setError(message);
+      setRetryAction(message === OFFLINE_AUTH_MESSAGE ? "requestCode" : null);
     } finally {
       setIsSubmitting(false);
     }
@@ -49,11 +67,21 @@ export default function SignInScreen() {
       return;
     }
 
+    if (code.trim().length === 0) {
+      setCodeError("Code is required");
+      codeInputRef.current?.focus();
+      return;
+    }
+
     setError(null);
+    setRetryAction(null);
+    setCodeError(undefined);
     setIsSubmitting(true);
 
     try {
-      const { error: verifyError } = await signIn.emailCode.verifyCode({ code });
+      const { error: verifyError } = await signIn.emailCode.verifyCode({
+        code: code.trim(),
+      });
 
       if (verifyError) {
         throw verifyError;
@@ -62,13 +90,20 @@ export default function SignInScreen() {
       await signIn.finalize();
       router.replace("/");
     } catch (err) {
-      setError(getAuthErrorMessage(err));
+      const message = getAuthErrorMessage(err);
+      setError(message);
+      setRetryAction(
+        message === OFFLINE_AUTH_MESSAGE || message === CALLBACK_AUTH_MESSAGE
+          ? "verifyCode"
+          : null
+      );
     } finally {
       setIsSubmitting(false);
     }
   }
 
   async function signInWithProvider(
+    provider: "google" | "apple",
     startFlow: () => Promise<{
       createdSessionId: string | null;
       setActive?: (params: { session: string }) => Promise<void>;
@@ -79,6 +114,7 @@ export default function SignInScreen() {
     }
 
     setError(null);
+    setRetryAction(null);
     setIsSubmitting(true);
 
     try {
@@ -89,9 +125,23 @@ export default function SignInScreen() {
         router.replace("/");
       }
     } catch (err) {
-      setError(getAuthErrorMessage(err));
+      const message = getAuthErrorMessage(err);
+      setError(message);
+      setRetryAction(message === CALLBACK_AUTH_MESSAGE ? provider : null);
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  function retryFailedAction() {
+    if (retryAction === "requestCode") {
+      void requestCode();
+    } else if (retryAction === "verifyCode") {
+      void verifyCode();
+    } else if (retryAction === "google") {
+      void signInWithProvider("google", startGoogleAuthenticationFlow);
+    } else if (retryAction === "apple") {
+      void signInWithProvider("apple", startAppleAuthenticationFlow);
     }
   }
 
@@ -112,7 +162,7 @@ export default function SignInScreen() {
             color: theme.color("neutral.950"),
           }}
         >
-          Welcome to Tiny Clubs
+          Ready when your crew is.
         </Text>
         <Text
           allowFontScaling
@@ -121,33 +171,46 @@ export default function SignInScreen() {
             color: theme.color("neutral.600"),
           }}
         >
-          Sign in without a password.
+          Start with email, Google, or Apple. No passwords, no drama.
         </Text>
+        <View
+          style={{
+            backgroundColor: theme.color("brand.sun"),
+            borderRadius: theme.radius("card"),
+            padding: theme.spacing("md"),
+          }}
+        >
+          <Text
+            allowFontScaling
+            style={{
+              ...theme.tokens.typography.bodySmall,
+              color: theme.color("neutral.950"),
+              fontWeight: "800",
+            }}
+          >
+            {step === "email"
+              ? "No clubs yet? We’ll help you make or join one after sign-in."
+              : "Check your inbox, then pop the code in here."}
+          </Text>
+        </View>
 
         {step === "email" ? (
           <>
-            <TextInput
-              accessibilityLabel="Email address"
-              allowFontScaling
+            <AccessibleTextField
+              ref={emailInputRef}
               autoCapitalize="none"
+              error={emailError}
               keyboardType="email-address"
-              onChangeText={setEmailAddress}
-              placeholder="you@example.com"
-              placeholderTextColor={theme.color("neutral.600")}
-              style={{
-                ...theme.tokens.typography.body,
-                backgroundColor: theme.color("surface.white"),
-                borderColor: theme.color("neutral.200"),
-                borderRadius: theme.radius("md"),
-                borderWidth: 1,
-                color: theme.color("neutral.950"),
-                minHeight: 44,
-                paddingHorizontal: theme.spacing("md"),
+              label="Email address"
+              onChangeText={(value) => {
+                setEmailAddress(value);
+                setEmailError(undefined);
               }}
+              placeholder="you@example.com"
+              testID="email-address"
               value={emailAddress}
             />
             <TinyButton
-              disabled={emailAddress.trim().length === 0}
               label="Request code"
               loading={isSubmitting}
               loadingLabel="Sending code"
@@ -156,27 +219,20 @@ export default function SignInScreen() {
           </>
         ) : (
           <>
-            <TextInput
-              accessibilityLabel="One-time code"
-              allowFontScaling
+            <AccessibleTextField
+              ref={codeInputRef}
+              error={codeError}
               keyboardType="number-pad"
-              onChangeText={setCode}
-              placeholder="123456"
-              placeholderTextColor={theme.color("neutral.600")}
-              style={{
-                ...theme.tokens.typography.body,
-                backgroundColor: theme.color("surface.white"),
-                borderColor: theme.color("neutral.200"),
-                borderRadius: theme.radius("md"),
-                borderWidth: 1,
-                color: theme.color("neutral.950"),
-                minHeight: 44,
-                paddingHorizontal: theme.spacing("md"),
+              label="One-time code"
+              onChangeText={(value) => {
+                setCode(value);
+                setCodeError(undefined);
               }}
+              placeholder="123456"
+              testID="one-time-code"
               value={code}
             />
             <TinyButton
-              disabled={code.trim().length === 0}
               label="Verify code"
               loading={isSubmitting}
               loadingLabel="Verifying code"
@@ -189,7 +245,9 @@ export default function SignInScreen() {
           label="Continue with Google"
           loading={isSubmitting}
           loadingLabel="Opening Google"
-          onPress={() => signInWithProvider(startGoogleAuthenticationFlow)}
+          onPress={() =>
+            signInWithProvider("google", startGoogleAuthenticationFlow)
+          }
           variant="secondary"
         />
 
@@ -198,16 +256,18 @@ export default function SignInScreen() {
             label="Continue with Apple"
             loading={isSubmitting}
             loadingLabel="Opening Apple"
-            onPress={() => signInWithProvider(startAppleAuthenticationFlow)}
+            onPress={() =>
+              signInWithProvider("apple", startAppleAuthenticationFlow)
+            }
             variant="secondary"
           />
         ) : null}
 
         {error ? (
           <TinyToast
-            actionLabel={error === OFFLINE_AUTH_MESSAGE ? "Retry" : undefined}
+            actionLabel={retryAction ? "Retry" : undefined}
             message={error}
-            onAction={error === OFFLINE_AUTH_MESSAGE ? requestCode : undefined}
+            onAction={retryAction ? retryFailedAction : undefined}
           />
         ) : null}
       </View>
