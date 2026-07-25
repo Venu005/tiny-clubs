@@ -1,6 +1,7 @@
 {
   "expo": {
     "scheme": "myapp",
+    "icon": "./assets/icon.png",
     "plugins": [
       "expo-router"
     ],
@@ -14,12 +15,17 @@
     },
     "ios": {
       "bundleIdentifier": "com.venusai.tinyclubs",
+      "icon": "./assets/icon.png",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
-      "package": "com.venusai.tinyclubs"
+      "package": "com.venusai.tinyclubs",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#112f3a"
+      }
     }
   }
 }

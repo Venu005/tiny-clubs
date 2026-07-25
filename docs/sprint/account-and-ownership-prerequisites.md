@@ -45,6 +45,8 @@ Related app identifiers in repo:
 | Access holder | **Venu005** (project owner) |
 | Google Play developer account | Not linked in repo yet |
 | Android application ID | `com.venusai.tinyclubs` |
+| Launcher icon | `assets/icon.png` |
+| Android adaptive icon | `assets/adaptive-icon.png` |
 | Play App Signing | Not configured yet |
 
 ### Pending verification
@@ -101,4 +103,5 @@ Before starting store submission or production auth:
 - [ ] Google Play developer account active and access holder confirmed
 - [ ] Production domain owned and DNS access documented
 - [ ] Deep-link verification files hosted and tested on device
+- [ ] App identity and icon configuration reviewed using [App identity](../runbooks/app-identity.md)
 - [ ] All rows in **Pending verification** tables above are closed or explicitly deferred
