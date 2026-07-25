@@ -10,20 +10,33 @@ import { useTheme } from "@/theme";
 
 const PHOTO_PERMISSION_MESSAGE =
   "Photo access was denied. You can still finish setup without a photo.";
+const USERNAME_FORMAT_MESSAGE =
+  "Username can use lowercase letters, numbers, underscores, and periods only.";
+const USERNAME_PATTERN = /^[a-z0-9_.]{3,24}$/;
+
+type SetupStep = "displayName" | "username";
+
+function isValidUsername(username: string) {
+  return USERNAME_PATTERN.test(username.trim().toLowerCase());
+}
 
 export default function ProfileSetupScreen() {
   const theme = useTheme();
   const completeSetup = useMutation(api.profiles.completeSetup);
   const displayNameRef = useRef<TextInput>(null);
+  const usernameRef = useRef<TextInput>(null);
+  const [step, setStep] = useState<SetupStep>("displayName");
   const [displayName, setDisplayName] = useState("");
   const [displayNameError, setDisplayNameError] = useState<string | undefined>();
+  const [username, setUsername] = useState("");
+  const [usernameError, setUsernameError] = useState<string | undefined>();
   const [error, setError] = useState<string | null>(null);
   const [photoMessage, setPhotoMessage] = useState<string | null>(null);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPickingPhoto, setIsPickingPhoto] = useState(false);
 
-  async function submit() {
+  function continueToUsername() {
     if (isSubmitting) {
       return;
     }
@@ -36,13 +49,43 @@ export default function ProfileSetupScreen() {
 
     setError(null);
     setDisplayNameError(undefined);
+    setStep("username");
+    requestAnimationFrame(() => usernameRef.current?.focus());
+  }
+
+  async function submit() {
+    if (isSubmitting) {
+      return;
+    }
+
+    if (username.trim().length === 0 || !isValidUsername(username)) {
+      setUsernameError(USERNAME_FORMAT_MESSAGE);
+      usernameRef.current?.focus();
+      return;
+    }
+
+    setError(null);
+    setUsernameError(undefined);
     setIsSubmitting(true);
 
     try {
-      await completeSetup({ displayName: displayName.trim() });
+      await completeSetup({
+        displayName: displayName.trim(),
+        username: username.trim(),
+      });
       router.replace("/");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to save profile");
+      const message = err instanceof Error ? err.message : "Unable to save profile";
+
+      if (
+        message === "Username is already taken" ||
+        message === USERNAME_FORMAT_MESSAGE
+      ) {
+        setUsernameError(message);
+        usernameRef.current?.focus();
+      } else {
+        setError(message);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -119,91 +162,132 @@ export default function ProfileSetupScreen() {
             color: theme.color("neutral.600"),
           }}
         >
-          Pick a display name and add a photo if you want. You can change both
-          later.
+          Pick a display name, then claim a username. You can add a photo now
+          or come back to it later.
         </Text>
 
-        <View
-          style={{
-            alignItems: "center",
-            backgroundColor: theme.color("surface.tint"),
-            borderRadius: theme.radius("card"),
-            gap: theme.spacing("sm"),
-            padding: theme.spacing("md"),
-          }}
-        >
-          {photoUri ? (
-            <Image
-              accessibilityLabel="Selected profile photo"
-              source={{ uri: photoUri }}
-              style={{
-                borderRadius: 48,
-                height: 96,
-                width: 96,
-              }}
-            />
-          ) : (
+        {step === "displayName" ? (
+          <>
             <View
-              accessibilityLabel="Empty profile photo"
               style={{
                 alignItems: "center",
-                backgroundColor: theme.color("brand.mint"),
-                borderRadius: 48,
-                height: 96,
-                justifyContent: "center",
-                width: 96,
+                backgroundColor: theme.color("surface.tint"),
+                borderRadius: theme.radius("card"),
+                gap: theme.spacing("sm"),
+                padding: theme.spacing("md"),
               }}
             >
-              <Text
-                allowFontScaling
-                style={{
-                  ...theme.tokens.typography.h2,
-                  color: theme.color("neutral.950"),
-                }}
-              >
-                TC
-              </Text>
+              {photoUri ? (
+                <Image
+                  accessibilityLabel="Selected profile photo"
+                  source={{ uri: photoUri }}
+                  style={{
+                    borderRadius: 48,
+                    height: 96,
+                    width: 96,
+                  }}
+                />
+              ) : (
+                <View
+                  accessibilityLabel="Empty profile photo"
+                  style={{
+                    alignItems: "center",
+                    backgroundColor: theme.color("brand.mint"),
+                    borderRadius: 48,
+                    height: 96,
+                    justifyContent: "center",
+                    width: 96,
+                  }}
+                >
+                  <Text
+                    allowFontScaling
+                    style={{
+                      ...theme.tokens.typography.h2,
+                      color: theme.color("neutral.950"),
+                    }}
+                  >
+                    TC
+                  </Text>
+                </View>
+              )}
+              <TinyButton
+                label={photoUri ? "Change profile photo" : "Add profile photo"}
+                loading={isPickingPhoto}
+                loadingLabel="Opening photos"
+                onPress={addProfilePhoto}
+                variant="secondary"
+              />
             </View>
-          )}
-          <TinyButton
-            label={photoUri ? "Change profile photo" : "Add profile photo"}
-            loading={isPickingPhoto}
-            loadingLabel="Opening photos"
-            onPress={addProfilePhoto}
-            variant="secondary"
-          />
-        </View>
 
-        {photoMessage ? (
-          <TinyToast
-            actionLabel="Continue without photo"
-            message={photoMessage}
-            onAction={() => setPhotoMessage(null)}
-          />
-        ) : null}
+            {photoMessage ? (
+              <TinyToast
+                actionLabel="Continue without photo"
+                message={photoMessage}
+                onAction={() => setPhotoMessage(null)}
+              />
+            ) : null}
 
-        <AccessibleTextField
-          ref={displayNameRef}
-          error={displayNameError}
-          label="Display name"
-          onChangeText={(value) => {
-            setDisplayName(value);
-            setDisplayNameError(undefined);
-          }}
-          placeholder="Tiny Captain"
-          testID="display-name"
-          value={displayName}
-        />
+            <AccessibleTextField
+              ref={displayNameRef}
+              error={displayNameError}
+              label="Display name"
+              onChangeText={(value) => {
+                setDisplayName(value);
+                setDisplayNameError(undefined);
+              }}
+              placeholder="Tiny Captain"
+              testID="display-name"
+              value={displayName}
+            />
 
-        {error ? (
-          <TinyToast actionLabel="Retry" message={error} onAction={submit} />
-        ) : null}
-        <TinyButton
-          label="Save profile"
-          loading={isSubmitting}
-          loadingLabel="Saving profile"
-          onPress={submit}
-        />
+            <TinyButton label="Continue" onPress={continueToUsername} />
+          </>
+        ) : (
+          <>
+            <Text
+              allowFontScaling
+              style={{
+                ...theme.tokens.typography.h2,
+                color: theme.color("neutral.950"),
+              }}
+            >
+              Choose your username
+            </Text>
+            <Text
+              allowFontScaling
+              style={{
+                ...theme.tokens.typography.bodySmall,
+                color: theme.color("neutral.600"),
+              }}
+            >
+              Usernames use lowercase letters, numbers, underscores, and
+              periods.
+            </Text>
+            <AccessibleTextField
+              ref={usernameRef}
+              autoCapitalize="none"
+              error={usernameError}
+              label="Username"
+              onChangeText={(value) => {
+                setUsername(value);
+                setUsernameError(undefined);
+              }}
+              placeholder="tiny.captain"
+              testID="username"
+              value={username}
+            />
+
+            {error ? (
+              <TinyToast actionLabel="Retry" message={error} onAction={submit} />
+            ) : null}
+            <TinyButton
+              label="Finish setup"
+              loading={isSubmitting}
+              loadingLabel="Saving profile"
+              onPress={submit}
+            />
+          </>
+        )}
       </View>
     </ScrollView>
   );

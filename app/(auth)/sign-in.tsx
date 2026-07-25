@@ -1,7 +1,7 @@
 import { useSignIn } from "@clerk/expo";
 import { useSignInWithApple } from "@clerk/expo/apple";
 import { useSignInWithGoogle } from "@clerk/expo/google";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useRef, useState } from "react";
 import { Platform, ScrollView, Text, TextInput, View } from "react-native";
 import {
@@ -9,7 +9,10 @@ import {
   getAuthErrorMessage,
   OFFLINE_AUTH_MESSAGE,
 } from "@/auth/errorMessages";
-import { shouldShowAppleSignIn } from "@/auth/routeDecision";
+import {
+  getSignedOutMessage,
+  shouldShowAppleSignIn,
+} from "@/auth/routeDecision";
 import { AccessibleTextField } from "@/components/AccessibleTextField";
 import { TinyButton, TinyToast } from "@/components/ui";
 import { useTheme } from "@/theme";
@@ -22,6 +25,8 @@ export default function SignInScreen() {
   const { signIn } = useSignIn();
   const { startGoogleAuthenticationFlow } = useSignInWithGoogle();
   const { startAppleAuthenticationFlow } = useSignInWithApple();
+  const params = useLocalSearchParams<{ reason?: string }>();
+  const signedOutMessage = getSignedOutMessage(params.reason);
   const emailInputRef = useRef<TextInput>(null);
   const codeInputRef = useRef<TextInput>(null);
   const [emailAddress, setEmailAddress] = useState("");
@@ -193,6 +198,8 @@ export default function SignInScreen() {
               : "Check your inbox, then pop the code in here."}
           </Text>
         </View>
+
+        {signedOutMessage ? <TinyToast message={signedOutMessage} /> : null}
 
         {step === "email" ? (
           <>

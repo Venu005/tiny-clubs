@@ -273,8 +273,13 @@ export default defineSchema({
     displayName: v.optional(v.string()),
     email: v.optional(v.string()),
     isComplete: v.boolean(),
+    onboardingCompletedAt: v.optional(v.number()),
     tokenIdentifier: v.string(),
-  }).index("by_tokenIdentifier", ["tokenIdentifier"]),
+    username: v.optional(v.string()),
+    usernameNormalized: v.optional(v.string()),
+  })
+    .index("by_tokenIdentifier", ["tokenIdentifier"])
+    .index("by_username_normalized", ["usernameNormalized"]),
 
   products: defineTable({
     product: v.string(),
