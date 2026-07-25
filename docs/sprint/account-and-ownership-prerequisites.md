@@ -44,7 +44,7 @@ Related app identifiers in repo:
 | Status | **Pending verification** — Play Console access not yet confirmed in project records |
 | Access holder | **Venu005** (project owner) |
 | Google Play developer account | Not linked in repo yet |
-| Android application ID | **Not set** — add `expo.android.package` before store submission (recommended: `com.venusai.tinyclubs`) |
+| Android application ID | `com.venusai.tinyclubs` |
 | Play App Signing | Not configured yet |
 
 ### Pending verification
@@ -52,7 +52,7 @@ Related app identifiers in repo:
 | Blocker | Next action |
 | --- | --- |
 | Play Console developer account status is unknown | Log in at [Google Play Console](https://play.google.com/console/) as **Venu005**, confirm the developer account is active, and record the account email here |
-| No Android package name is committed | Add `android.package` to `app.json`, rebuild with EAS, then create the Play Console app using the same application ID |
+| Android signing credentials are not provisioned | Run `eas credentials --platform android` and generate or upload the Android keystore for `com.venusai.tinyclubs` |
 | No internal testing track exists | After the app record is created, configure an internal testing release for staging builds |
 
 ---

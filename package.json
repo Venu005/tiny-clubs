@@ -11,6 +11,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
+    "build:preview:android": "eas build --platform android --profile preview || node ./scripts/preview-build-help.js android",
+    "build:preview:ios": "eas build --platform ios --profile preview || node ./scripts/preview-build-help.js ios",
     "reset-project": "node ./scripts/reset-project.js",
     "lint": "expo lint --max-warnings 0",
     "typecheck": "tsc --noEmit",
