@@ -5,20 +5,35 @@
   },
   "build": {
     "development": {
+      "environment": "development",
       "developmentClient": true,
       "distribution": "internal",
+      "env": {
+        "APP_ENVIRONMENT_NAME": "development",
+        "EXPO_PUBLIC_APP_ENVIRONMENT": "development"
+      },
       "ios": {
         "simulator": true
       }
     },
-    "preview": {
+    "staging": {
+      "environment": "staging",
       "distribution": "internal",
+      "env": {
+        "APP_ENVIRONMENT_NAME": "staging",
+        "EXPO_PUBLIC_APP_ENVIRONMENT": "staging"
+      },
       "ios": {
         "simulator": true
       }
     },
     "production": {
-      "autoIncrement": true
+      "environment": "production",
+      "autoIncrement": true,
+      "env": {
+        "APP_ENVIRONMENT_NAME": "production",
+        "EXPO_PUBLIC_APP_ENVIRONMENT": "production"
+      }
     }
   },
   "submit": {

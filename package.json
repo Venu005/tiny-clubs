@@ -2,23 +2,34 @@
   "name": "tiny-clubs",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "packageManager": "pnpm@11.17.0",
   "scripts": {
     "start": "expo start",
+    "start:development": "EXPO_PUBLIC_APP_ENVIRONMENT=development expo start",
+    "start:staging": "EXPO_PUBLIC_APP_ENVIRONMENT=staging expo start",
+    "start:production": "EXPO_PUBLIC_APP_ENVIRONMENT=production expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
     "reset-project": "node ./scripts/reset-project.js",
-    "lint": "expo lint"
+    "lint": "expo lint --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test '**/*.test.js'",
+    "test:convex": "vitest run",
+    "check:expo": "expo-doctor",
+    "secret-scan": "node ./scripts/scan-secrets.js --history",
+    "apply:branch-protection": "node ./scripts/apply-branch-protection.js"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
-    "convex": "^1.30.0",
+    "convex": "^1.42.3",
     "expo": "^57.0.1",
     "expo-constants": "~57.0.2",
     "expo-dev-client": "~57.0.9",
+    "expo-font": "~57.0.1",
     "expo-linking": "~57.0.1",
     "expo-router": "~57.0.2",
     "expo-system-ui": "~57.0.0",
@@ -28,15 +39,19 @@
     "react-native-gesture-handler": "~2.32.0",
     "react-native-reanimated": "4.5.0",
     "react-native-safe-area-context": "~5.7.0",
-    "react-native-screens": "4.25.2",
+    "react-native-screens": "~4.26.0",
     "react-native-web": "~0.21.0",
     "react-native-worklets": "0.10.0"
   },
   "devDependencies": {
+    "@edge-runtime/vm": "^5.0.0",
     "@types/react": "~19.2.14",
+    "convex-test": "^0.0.54",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~57.0.0",
-    "typescript": "~6.0.3"
+    "expo-doctor": "^1.17.14",
+    "typescript": "~6.0.3",
+    "vitest": "^4.0.18"
   },
   "private": true
 }
