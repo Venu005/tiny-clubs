@@ -2,7 +2,6 @@ export const CLERK_CONFIGURATION_ERROR_MESSAGE =
   "Add EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY to your environment before starting the app.";
 
 export type AuthConfig = {
-  clerkJwtIssuerDomain: string | null;
   clerkPublishableKey: string | null;
   isConfigured: boolean;
   message: string | null;
@@ -18,13 +17,9 @@ export function resolveAuthConfig(
   const clerkPublishableKey = readEnvValue(
     env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY
   );
-  const clerkJwtIssuerDomain = readEnvValue(
-    env.EXPO_PUBLIC_CLERK_JWT_ISSUER_DOMAIN
-  );
 
   if (clerkPublishableKey === null) {
     return {
-      clerkJwtIssuerDomain,
       clerkPublishableKey: null,
       isConfigured: false,
       message: CLERK_CONFIGURATION_ERROR_MESSAGE,
@@ -32,10 +27,8 @@ export function resolveAuthConfig(
   }
 
   return {
-    clerkJwtIssuerDomain,
     clerkPublishableKey,
     isConfigured: true,
     message: null,
   };
 }
-

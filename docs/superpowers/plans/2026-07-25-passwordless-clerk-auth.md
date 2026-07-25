@@ -25,7 +25,7 @@
 
 - Modify `package.json` and `pnpm-lock.yaml`: add Clerk and native auth dependencies.
 - Modify `app.json`: add Clerk, Google sign-in, Apple auth, and SecureStore config plugins plus Clerk Google `extra` values.
-- Modify `.env.example`: document Clerk publishable key, Clerk JWT issuer domain, and Google client IDs.
+- Modify `.env.example`: document Clerk publishable key, server-side Clerk JWT issuer domain, and Google client IDs.
 - Modify `app/_layout.tsx`: wrap app with `ClerkProvider` and `ConvexProviderWithClerk`.
 - Create `app/authConfig.ts`: validate public Clerk config and return a non-crashing config state.
 - Create `app/(auth)/_layout.tsx`: redirect signed-in users away from auth routes.
@@ -53,7 +53,7 @@
 - Test: `app/authConfig.test.ts`
 
 **Interfaces:**
-- Produces `resolveAuthConfig(env: Record<string, string | undefined>) => { clerkPublishableKey: string | null; clerkJwtIssuerDomain: string | null; isConfigured: boolean; message: string | null }`.
+- Produces `resolveAuthConfig(env: Record<string, string | undefined>) => { clerkPublishableKey: string | null; isConfigured: boolean; message: string | null }`.
 
 - [ ] **Step 1: Write failing auth config tests**
 
@@ -231,4 +231,3 @@ Stage only feature files and commit with `Add passwordless Clerk authentication`
 - [ ] **Step 3: Push and raise PR**
 
 Push `codex/passwordless-clerk-auth` and create a PR against `main`.
-

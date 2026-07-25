@@ -34,7 +34,7 @@ These native flows require development, preview, or production native builds. Th
 4. `ConvexProviderWithClerk` using the existing `ConvexReactClient` and Clerk `useAuth`
 5. Expo Router `Stack`
 
-If the Convex URL is missing, the existing backend configuration error remains. If the Clerk publishable key is missing, the app renders a non-crashing configuration error with setup guidance.
+If the Convex URL is missing, the existing backend configuration error remains. If the Clerk publishable key is missing, the app renders a non-crashing configuration error with setup guidance. Convex reads the Clerk JWT issuer from server-side `CLERK_JWT_ISSUER_DOMAIN`; this value is not exposed through Expo public client config.
 
 ## Routes
 
@@ -74,4 +74,3 @@ After Clerk and Convex authentication are both loaded, the app reads the current
 ## Error Handling
 
 All auth attempts exit loading in `finally`. Failed, cancelled, offline, or callback-broken flows do not store partial app sessions. The user can retry without restarting.
-

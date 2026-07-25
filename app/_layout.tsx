@@ -115,8 +115,6 @@ export function RootProviders({
   });
   const authConfig = resolveAuthConfig({
     EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY,
-    EXPO_PUBLIC_CLERK_JWT_ISSUER_DOMAIN:
-      env.EXPO_PUBLIC_CLERK_JWT_ISSUER_DOMAIN,
   });
 
   if (backendConfig.convexUrl === null) {
