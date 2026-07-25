@@ -106,7 +106,7 @@ Staging uses a **separate Convex deployment**. Do not point staging builds at th
    pnpm start:staging
    ```
 
-5. For internal device builds, use the EAS **staging** profile (`eas.json` sets `EXPO_PUBLIC_APP_ENVIRONMENT=staging`). Provide `EXPO_PUBLIC_CONVEX_URL_STAGING` through EAS environment variables for that profile.
+5. For simulator validation, use the EAS **staging** profile (`eas.json` sets `EXPO_PUBLIC_APP_ENVIRONMENT=staging`). For physical iOS and Android devices, use the EAS **preview** profile described in [Physical device preview builds](./preview-builds.md). Provide `EXPO_PUBLIC_CONVEX_URL_STAGING` through EAS environment variables for both profiles.
 
 ### Staging checklist
 
@@ -148,6 +148,7 @@ If a variable is missing, the app may show **Backend unavailable**. Use this tab
 | --- | --- | --- |
 | `development` | `development` | `EXPO_PUBLIC_CONVEX_URL_DEVELOPMENT` |
 | `staging` | `staging` | `EXPO_PUBLIC_CONVEX_URL_STAGING` |
+| `preview` | `staging` | `EXPO_PUBLIC_CONVEX_URL_STAGING` |
 | `production` | `production` | `EXPO_PUBLIC_CONVEX_URL_PRODUCTION` |
 
 Configure missing URL variables in the Expo/EAS project environment settings for each EAS environment (`development`, `staging`, `production`).

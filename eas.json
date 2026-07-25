@@ -27,6 +27,20 @@
         "simulator": true
       }
     },
+    "preview": {
+      "environment": "staging",
+      "distribution": "internal",
+      "env": {
+        "APP_ENVIRONMENT_NAME": "staging",
+        "EXPO_PUBLIC_APP_ENVIRONMENT": "staging"
+      },
+      "android": {
+        "buildType": "apk"
+      },
+      "ios": {
+        "simulator": false
+      }
+    },
     "production": {
       "environment": "production",
       "autoIncrement": true,

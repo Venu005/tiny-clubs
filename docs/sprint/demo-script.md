@@ -21,14 +21,16 @@ Use this script to close the sprint with live evidence: two preview builds, back
 
 ## 1. Build preview apps (if needed)
 
-Create internal preview builds for both environments:
+Create internal preview builds for simulator/development validation and physical-device staging validation:
 
 ```sh
 eas build --profile development --platform all
 eas build --profile staging --platform all
+eas build --profile preview --platform android
+eas build --profile preview --platform ios
 ```
 
-When builds finish, open the EAS dashboard and copy the install links / QR codes for each profile.
+When builds finish, open the EAS dashboard and copy the install links / QR codes for each profile. Use the `preview` artifacts for physical Android and iOS hardware.
 
 ---
 
@@ -124,5 +126,6 @@ On a demo branch (not `main`):
 ## Related documents
 
 - [Environments runbook](../runbooks/environments.md)
+- [Physical device preview builds](../runbooks/preview-builds.md)
 - [Retro checklist](./retro-checklist.md)
 - `.github/workflows/ci.yml` — `CI / verify` job
