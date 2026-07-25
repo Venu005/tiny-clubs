@@ -1,21 +1,20 @@
-const assert = require("node:assert/strict");
-const test = require("node:test");
-
 const easConfig = require("./eas.json");
 
-test("EAS build profiles select isolated service environments", () => {
-  assert.equal(easConfig.build.development.environment, "development");
-  assert.equal(
-    easConfig.build.development.env.EXPO_PUBLIC_APP_ENVIRONMENT,
-    "development"
-  );
+describe("eas.json", () => {
+  it("EAS build profiles select isolated service environments", () => {
+    expect(easConfig.build.development.environment).toBe("development");
+    expect(easConfig.build.development.env.EXPO_PUBLIC_APP_ENVIRONMENT).toBe(
+      "development"
+    );
 
-  assert.equal(easConfig.build.staging.environment, "staging");
-  assert.equal(easConfig.build.staging.env.EXPO_PUBLIC_APP_ENVIRONMENT, "staging");
+    expect(easConfig.build.staging.environment).toBe("staging");
+    expect(easConfig.build.staging.env.EXPO_PUBLIC_APP_ENVIRONMENT).toBe(
+      "staging"
+    );
 
-  assert.equal(easConfig.build.production.environment, "production");
-  assert.equal(
-    easConfig.build.production.env.EXPO_PUBLIC_APP_ENVIRONMENT,
-    "production"
-  );
+    expect(easConfig.build.production.environment).toBe("production");
+    expect(easConfig.build.production.env.EXPO_PUBLIC_APP_ENVIRONMENT).toBe(
+      "production"
+    );
+  });
 });

@@ -1,0 +1,5 @@
+# Placeholder Maestro flow for tiny-clubs.
+# Run locally after installing Maestro: maestro test e2e/maestro/smoke.yaml
+appId: com.venusai.tinyclubs
+---
+- launchApp
